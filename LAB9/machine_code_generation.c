@@ -1,57 +1,64 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 char op[2], arg1[5], arg2[5], result[5];
 
 int main() {
-    FILE *fp1, *fp2;
-    
-    // Open input and output files
-    fp1 = fopen("input.txt", "r");
-    fp2 = fopen("output.txt", "w");
+    // Ensure the input file exists
+    FILE *checkFile = fopen("input.txt", "a"); // Opens in append mode, creates if it doesn't exist
+    if (checkFile == NULL) {
+        perror("Error creating input file");
+        return 1;
+    }
+    fclose(checkFile);
 
-    if (fp1 == NULL || fp2 == NULL) {
-        printf("Error opening file.\n");
+    // Open the input and output files
+    FILE *inputFile = fopen("input.txt", "r");
+    FILE *outputFile = fopen("output.txt", "w");
+
+    // Check if the input file is open
+    if (inputFile == NULL) {
+        perror("Error opening input.txt file");
+        return 1;
+    }
+    
+    // Check if the output file is open
+    if (outputFile == NULL) {
+        perror("Error opening output.txt file");
+        fclose(inputFile);
         return 1;
     }
 
-    // Read input file line by line
-    while (fscanf(fp1, "%s %s %s %s", op, arg1, arg2, result) != EOF) {
-        
+    // Process each line from the input file
+    while (fscanf(inputFile, "%s %s %s %s", op, arg1, arg2, result) == 4) {
         if (strcmp(op, "+") == 0) {
-            fprintf(fp2, "MOV R0, %s\n", arg1);
-            fprintf(fp2, "ADD R0, %s\n", arg2);
-            fprintf(fp2, "MOV %s, R0\n", result);
-        } 
-        else if (strcmp(op, "-") == 0) {
-            fprintf(fp2, "MOV R0, %s\n", arg1);
-            fprintf(fp2, "SUB R0, %s\n", arg2);
-            fprintf(fp2, "MOV %s, R0\n", result);
-        } 
-        else if (strcmp(op, "*") == 0) {
-            fprintf(fp2, "MOV R0, %s\n", arg1);
-            fprintf(fp2, "MUL R0, %s\n", arg2);
-            fprintf(fp2, "MOV %s, R0\n", result);
-        } 
-        else if (strcmp(op, "/") == 0) {
-            fprintf(fp2, "MOV R0, %s\n", arg1);
-            fprintf(fp2, "DIV R0, %s\n", arg2);
-            fprintf(fp2, "MOV %s, R0\n", result);
-        } 
-        else if (strcmp(op, "=") == 0) {
-            fprintf(fp2, "MOV R0, %s\n", arg1);
-            fprintf(fp2, "MOV %s, R0\n", result);
-        } 
-        else {
-            fprintf(fp2, "INVALID OPERATION: %s\n", op);
+            fprintf(outputFile, "MOV R0, %s\n", arg1);
+            fprintf(outputFile, "ADD R0, %s\n", arg2);
+            fprintf(outputFile, "MOV %s, R0\n", result);
+        } else if (strcmp(op, "*") == 0) {
+            fprintf(outputFile, "MOV R0, %s\n", arg1);
+            fprintf(outputFile, "MUL R0, %s\n", arg2);
+            fprintf(outputFile, "MOV %s, R0\n", result);
+        } else if (strcmp(op, "-") == 0) {
+            fprintf(outputFile, "MOV R0, %s\n", arg1);
+            fprintf(outputFile, "SUB R0, %s\n", arg2);
+            fprintf(outputFile, "MOV %s, R0\n", result);
+        } else if (strcmp(op, "/") == 0) {
+            fprintf(outputFile, "MOV R0, %s\n", arg1);
+            fprintf(outputFile, "DIV R0, %s\n", arg2);
+            fprintf(outputFile, "MOV %s, R0\n", result);
+        } else if (strcmp(op, "=") == 0) {
+            fprintf(outputFile, "MOV R0, %s\n", arg1);
+            fprintf(outputFile, "MOV %s, R0\n", result);
         }
     }
 
-    // Close files
-    fclose(fp1);
-    fclose(fp2);
+    // Close the files
+    fclose(inputFile);
+    fclose(outputFile);
 
-    printf("Machine code generated successfully in output.txt\n");
-
+    printf("Assembly code successfully written to output.txt\n");
+    
     return 0;
 }
