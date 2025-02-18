@@ -1,43 +1,49 @@
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
+#include <iostream>
+#include <vector>
+#include <string>
+#include <cctype>
+
+using namespace std;
 
 int numProductions;
-char productions[10][10];
+vector<string> productions;
 
-void follow(char result[], char c);
-void first(char result[], char c);
-void addToResultSet(char result[], char val);
+void follow(string &result, char c);
+void first(string &result, char c);
+void addToResultSet(string &result, char val);
 
 int main() {
-    int i;
-    char c, result[20];
+    size_t i;
+    char c;
+    string result;
 
-    printf("Enter the number of productions: ");
-    scanf("%d", &numProductions);
+    cout << "Enter the number of productions: ";
+    cin >> numProductions;
 
-    printf("Enter the productions:\n");
+    productions.resize(numProductions);
+    cout << "Enter the productions:\n";
     for (i = 0; i < numProductions; i++) {
-        scanf("%s", productions[i]);
+        cin >> productions[i];
     }
 
-    printf("Find FOLLOW of: ");
-    scanf(" %c", &c);
+    cout << "Find FOLLOW of: ";
+    cin >> c;
 
     follow(result, c);
-    printf("FOLLOW(%c) = { ", c);
-    for (i = 0; result[i] != '\0'; i++) {
-        printf("%c ", result[i]);
+    cout << "FOLLOW(" << c << ") = { ";
+    for (i = 0; i < result.size(); i++) {
+        cout << result[i] << " ";
     }
-    printf("}\n");
+    cout << "}\n";
 
     return 0;
 }
 
-void follow(char result[], char c) {
-    int i, j, k;
-    char subResult[20];
-    result[0] = '\0';
+void follow(string &result, char c) {
+    int i, k;
+    size_t j;
+    string subResult;
+    result.clear();
 
     // If c is the start symbol, add '$' to FOLLOW(c)
     if (productions[0][0] == c) {
@@ -46,23 +52,23 @@ void follow(char result[], char c) {
 
     // Scan all productions
     for (i = 0; i < numProductions; i++) {
-        size_t len = strlen(productions[i]);
+        size_t len = productions[i].length();
         for (j = 2; j < len; j++) { // Start from the 2nd character (after the arrow)
             if (productions[i][j] == c) { // Found c in RHS
-                subResult[0] = '\0'; // Reset subResult before using it
+                subResult.clear(); // Reset subResult before using it
 
                 if (productions[i][j + 1] != '\0') { // If next symbol exists
                     first(subResult, productions[i][j + 1]);
 
                     // Add FIRST of next symbol (excluding ε)
-                    for (k = 0; subResult[k] != '\0'; k++) {
+                    for (k = 0; k < subResult.size(); k++) {
                         if (subResult[k] != '#') { 
                             addToResultSet(result, subResult[k]);
                         }
                     }
 
                     // If ε is in FIRST(next), also add FOLLOW(LHS)
-                    for (k = 0; subResult[k] != '\0'; k++) {
+                    for (k = 0; k < subResult.size(); k++) {
                         if (subResult[k] == '#') { 
                             follow(result, productions[i][0]);
                         }
@@ -77,9 +83,9 @@ void follow(char result[], char c) {
     }
 }
 
-void first(char result[], char c) {
+void first(string &result, char c) {
     int i;
-    result[0] = '\0'; // Reset result at the beginning
+    result.clear(); // Reset result at the beginning
 
     if (!isupper(c)) { // If c is a terminal
         addToResultSet(result, c);
@@ -100,11 +106,9 @@ void first(char result[], char c) {
     }
 }
 
-void addToResultSet(char result[], char val) {
-    int i;
-    for (i = 0; result[i] != '\0'; i++) {
-        if (result[i] == val) return; // Avoid duplicates
+void addToResultSet(string &result, char val) {
+    if (result.find(val) == string::npos) { // Avoid duplicates
+        result.push_back(val); // Add new value to result
     }
-    result[i] = val; // Add new value to result
-    result[i + 1] = '\0'; // Null terminate the string
 }
+

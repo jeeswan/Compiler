@@ -1,14 +1,17 @@
-#include <stdio.h>
+#include <iostream>
+#include <string>
+
+using namespace std;
 
 int main()
 {
-    char str[20];
+    string str;
     int i = 0, state = 0;
 
-    printf("Enter a string: ");
-    scanf("%s", str);
+    cout << "Enter a string: ";
+    cin >> str;
 
-    while (str[i] != '\0')
+    while (i < str.length())
     {
         switch (state)
         {
@@ -43,9 +46,9 @@ int main()
     }
 
     if (state == 3)
-        printf("The string is accepted\n");
+        cout << "The string is accepted" << endl;
     else
-        printf("The string is invalid\n");
+        cout << "The string is invalid" << endl;
 
     return 0;
 }
